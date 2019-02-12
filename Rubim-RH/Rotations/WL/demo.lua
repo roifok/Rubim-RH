@@ -268,8 +268,6 @@ local function FutureShard()
             return Shard - 1
         elseif Player:IsCasting(S.CallDreadStalkers) and Player:BuffRemainsP(S.DemonicCallingBuff) == 0 then
             return Shard - 2
-        elseif Player:IsCasting(S.CallDreadStalkers) and Player:BuffRemainsP(S.DemonicCallingBuff) then
-            return Shard - 1
         elseif Player:IsCasting(S.SummonVilefiend) then
             return Shard - 1
         elseif Player:IsCasting(S.SummonFelguard) then
@@ -334,7 +332,7 @@ end
     -- snapshot_stats
 	-- potion
     -- demonbolt
-    if S.Demonbolt:IsCastableP() then
+    if S.Demonbolt:IsCastableP() and not Player:IsCasting(S.Demonbolt) then
       return S.Demonbolt:Cast()
     end
   end
@@ -353,7 +351,7 @@ end
 		
 	local function DconEpOpener()
     -- hand_of_guldan,line_cd=30
-    if S.HandOfGuldan:IsCastableP() and FutureShard() > 4 then
+    if S.HandOfGuldan:IsCastableP() and FutureShard() > 4 and HL.CombatTime() <= 7 then
       return S.HandOfGuldan:Cast()
     end
     -- doom,line_cd=30
@@ -361,7 +359,7 @@ end
       return S.Doom:Cast()
     end
     -- demonic_strength
-    if S.DemonicStrength:IsCastableP() then
+    if S.DemonicStrength:IsCastableP() and IsPetInvoked() then
       return S.DemonicStrength:Cast()
     end
     -- bilescourge_bombers
@@ -373,27 +371,31 @@ end
       return S.SoulStrike:Cast()
     end
 	-- implosion,if=buff.wild_imps.stack>2&buff.explosive_potential.down
-    if S.Implosion:IsCastableP() and PetStack("Wild Imp") > 2 and Player:BuffDownP(S.ExplosivePotentialBuff) then
+    if S.Implosion:IsCastableP() and PetStack("Wild Imp") > 2 and Player:BuffDownP(S.ExplosivePotentialBuff) and HL.CombatTime() <= 7 then
       return S.Implosion:Cast()
     end
     -- grimoire_felguard
-    if S.GrimoireFelguard:IsCastableP() and FutureShard() > 1 then
+    if S.GrimoireFelguard:IsCastableP() and FutureShard() >= 1 and Player:BuffRemainsP(S.ExplosivePotentialBuff) > 1 then
       return S.GrimoireFelguard:Cast()
     end
 	-- summon_vilefiend
-    if S.SummonVilefiend:IsCastableP() and FutureShard() > 1 then
+    if S.SummonVilefiend:IsCastableP() and FutureShard() >= 1 and Player:BuffRemainsP(S.ExplosivePotentialBuff) > 1 then
       return S.SummonVilefiend:Cast()
     end
 	-- call_dreadstalkers,if=prev_gcd.1.hand_of_guldan
-    if S.CallDreadStalkers:IsCastableP() and FutureShard() > 1 and (Player:PrevGCDP(1, S.HandOfGuldan)) then
+    if S.CallDreadStalkers:IsCastableP() and FutureShard() > 1 and Player:BuffRemainsP(S.ExplosivePotentialBuff) > 1 then
       return S.CallDreadStalkers:Cast()
     end
     -- hand_of_guldan,if=soul_shard=5|soul_shard=4&buff.demonic_calling.remains
-    if S.HandOfGuldan:IsCastableP() and (FutureShard() == 5 or (FutureShard() == 4 and Player:BuffRemainsP(S.DemonicCallingBuff))) then
+    if S.HandOfGuldan:IsCastableP() and FutureShard() > 4 then
       return S.HandOfGuldan:Cast()
     end
+	-- hand_of_guldan,if=soul_shard=5|soul_shard=4&buff.demonic_calling.remains
+  --  if S.HandOfGuldan:IsCastableP() and FutureShard() > 2 and (Player:PrevGCDP(1, S.HandOfGuldan)) and Player:BuffRemainsP(S.ExplosivePotentialBuff) >= 5 then
+   --   return S.HandOfGuldan:Cast()
+  --  end
     -- summon_demonic_tyrant,if=prev_gcd.1.call_dreadstalkers
-    if S.SummonDemonicTyrant:IsCastableP() and RubimRH.CDsON() and PetStack("Wild Imp") > 5 and (Player:PrevGCDP(1, S.CallDreadStalkers)) then
+    if S.SummonDemonicTyrant:IsCastableP() and RubimRH.CDsON() and PetStack("Wild Imp") > 2 then
       return S.SummonDemonicTyrant:Cast()
     end
     -- demonbolt,if=soul_shard<=3&buff.demonic_core.remains
@@ -411,7 +413,10 @@ end
   
   
     local function Implosion()
-  
+    -- bilescourge_bombers,if=cooldown.summon_demonic_tyrant.remains>9
+    if S.BilescourgeBombers:IsCastableP() and Player:SoulShardsP() >= 2 and Cache.EnemiesCount[40] >= 3 and Target:TimeToDie() > 6 then
+        return S.BilescourgeBombers:Cast()
+    end  
   	-- implosion,if=PetStack.imps>=mainAddon.db.profile[266].sk1+RubimRH.AoEON
     if S.Implosion:IsCastableP() and PetStack("Wild Imp") > 1 and PetStack("Wild Imp") >= mainAddon.db.profile[266].sk1 and RubimRH.AoEON() then
         return S.Implosion:Cast()
