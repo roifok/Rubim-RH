@@ -351,11 +351,11 @@ end
 		
 	local function DconEpOpener()
     -- hand_of_guldan,line_cd=30
-    if S.HandOfGuldan:IsCastableP() and FutureShard() > 4 and HL.CombatTime() <= 7 then
+    if S.HandOfGuldan:IsCastableP() and FutureShard() > 4 and HL.CombatTime() <= 5 then
       return S.HandOfGuldan:Cast()
     end
     -- doom,line_cd=30
-    if S.Doom:IsCastableP() then
+    if S.Doom:IsCastableP() and not Target:DebuffP(S.DoomDebuff) then
       return S.Doom:Cast()
     end
     -- demonic_strength
@@ -387,7 +387,7 @@ end
       return S.CallDreadStalkers:Cast()
     end
     -- hand_of_guldan,if=soul_shard=5|soul_shard=4&buff.demonic_calling.remains
-    if S.HandOfGuldan:IsCastableP() and FutureShard() > 4 then
+    if S.HandOfGuldan:IsCastableP() and FutureShard() > 2 then
       return S.HandOfGuldan:Cast()
     end
 	-- hand_of_guldan,if=soul_shard=5|soul_shard=4&buff.demonic_calling.remains
@@ -395,7 +395,7 @@ end
    --   return S.HandOfGuldan:Cast()
   --  end
     -- summon_demonic_tyrant,if=prev_gcd.1.call_dreadstalkers
-    if S.SummonDemonicTyrant:IsCastableP() and RubimRH.CDsON() and PetStack("Wild Imp") > 2 then
+    if S.SummonDemonicTyrant:IsCastableP() and RubimRH.CDsON() and (PetStack("Wild Imp") > 2 or ((Player:PrevGCDP(1, S.HandOfGuldan)) and FutureShard() == 0)) then
       return S.SummonDemonicTyrant:Cast()
     end
     -- demonbolt,if=soul_shard<=3&buff.demonic_core.remains
@@ -403,7 +403,6 @@ end
       return S.Demonbolt:Cast()
     end
     -- call_action_list,name=build_a_shard
-        -- call_action_list,name=build_a_shard
         if (true) then
             if BuildAShard() ~= nil then
                 return BuildAShard()
@@ -624,7 +623,7 @@ local function APL()
       return S.Fireblood:Cast()
     end
     -- call_action_list,name=dcon_ep_opener,if=azerite.explosive_potential.rank&talent.demonic_consumption.enabled&time<30&!cooldown.summon_demonic_tyrant.remains
-    if S.ExplosivePotential:AzeriteEnabled() and S.DemonicConsumption:IsAvailable() and HL.CombatTime() < 15 and S.SummonDemonicTyrant:CooldownRemainsP() <= 5 then
+    if S.ExplosivePotential:AzeriteEnabled() and S.DemonicConsumption:IsAvailable() and HL.CombatTime() < 20 and S.SummonDemonicTyrant:CooldownRemainsP() <= 5 then
 	    if DconEpOpener() ~= nil then
             return DconEpOpener()
         end
