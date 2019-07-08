@@ -16,7 +16,7 @@ local mainAddon = RubimRH
 
 --- APL Local Vars
 -- Spells
-RubimRH.Spell[264] = {
+RubimRH.Spell[257] = {
     -- Racials
     ArcaneTorrent         = Spell(25046),
     GiftoftheNaaru        = Spell(59547),
@@ -25,47 +25,37 @@ RubimRH.Spell[264] = {
     Fireblood             = Spell(265221),
     AncestralCall         = Spell(274738),
 
-    -- Main Spells
-    Riptide               = Spell(61295),
-	HealingSurge          = Spell(8004),
-	HealingWave           = Spell(77472),	
-	ChainHeal             = Spell(1064),
-	HealingRain           = Spell(73920),
-	HealingStreamTotem    = Spell(5394),
-	TidalWaveBuff         = Spell(51564),
+    -- Main Spells 
+    PowerWordRadiance     = Spell(194509),
+	PowerWordShield       = Spell(17),
+	AtonementBuff         = Spell(81749),
+	ShadowMend            = Spell(186263),	
+	HolyWordSerenity      = Spell(2050),
+	HolyWordSanctify      = Spell(34861),
+	PrayerOfHealing       = Spell(596),
+	PrayerOfMending       = Spell(33076),
+	Penance               = Spell(47540),
 	
 	-- Offensive Abilities
-	FlameShock            = Spell(188838),
-	FlameShockDebuff      = Spell(188389),
-	LavaBurst             = Spell(51505),
-	LightningBolt         = Spell(403),
-	ChainLightning        = Spell(421),
+	ShadowWordPain        = Spell(589),
+	Smite                 = Spell(585),
+	PurgeTheWicked        = Spell(204213),
 	
 	-- Cooldowns
-	HealingTideTotem      = Spell(108280),
-	SpiritLinkTotem       = Spell(98008),
-	SpiritWalkersGrace    = Spell(79206),
-	
-	-- Defensives
-	AstralShift           = Spell(108271),
+	Rapture               = Spell(47536),
+	GuardianSpirit        = Spell(47788),
+	PainSuppression       = Spell(33206),
+	PowerWordBarrier      = Spell(81782),
 	
 	-- Utilities
-	AncestralSpirit       = Spell(2008),
-	AncestralVision       = Spell(212048),
-	AstralRecall          = Spell(556),
-	EarthbindTotem        = Spell(2484),
-	FarSight              = Spell(6196),
-	GhostWolf             = Spell(2645),
-	Bloodlust             = Spell(2825),
-	Heroism               = Spell(32182),
-	Hex                   = Spell(51514),
-	Purge                 = Spell(370),
-	PurifySpirit          = Spell(77130),
-	WaterWalking          = Spell(546),
-	WindShear             = Spell(57994),
-	TremorTotem           = Spell(8143),
-	EarthElemental        = Spell(198103),
-	CapacitorTotem        = Spell(192058),
+	Fade                  = Spell(586),
+	DispellMagic          = Spell(528),
+	LeapOfFaith           = Spell(73325),
+	MindControl           = Spell(605),
+	MassDispell           = Spell(32375),
+	Purify                = Spell(527),
+	ShackleUndead         = Spell(9484),
+	PsychicScream         = Spell(8122),
 	
 	--8.2 Essences
     UnleashHeartOfAzeroth = Spell(280431),
@@ -98,20 +88,20 @@ RubimRH.Spell[264] = {
     MemoryOfLucidDreams3  = Spell(299374),	
 	
 };
-local S = RubimRH.Spell[264];
+local S = RubimRH.Spell[257];
 
 -- Items
-if not Item.Shaman then
-    Item.Shaman = {};
+if not Item.Priest then
+    Item.Priest = {};
 end
 
-Item.Shaman.Resto = {
+Item.Priest.Disci = {
     -- Legendaries
     JusticeGaze = Item(137065, { 1 }),
     LiadrinsFuryUnleashed = Item(137048, { 11, 12 }),
     WhisperoftheNathrezim = Item(137020, { 15 })
 };
-local I = Item.Shaman.Resto;
+local I = Item.Priest.Disci;
 -- Rotation Var
 
 -- APL Action Lists (and Variables)
@@ -271,9 +261,39 @@ local function APL()
 	-- Dps rotation
     local DPS = function()
         --actions=potion
-        --actions+=/wind_shear
-
-        --actions+=/use_items
+	    -- ShadowWord Pain
+        if S.ShadowWordPain:IsCastableP() then
+            return S.ShadowWordPain:Cast()
+        end
+		-- Purge the Wicked
+        if S.PurgeTheWicked:IsCastableP() then
+            return S.PurgeTheWicked:Cast()
+        end
+	    -- Smite
+        if S.Smite:IsCastableP() then
+            return S.Smite:Cast()
+        end
+		-- Penance
+		if S.Penance:IsCastableP() then
+		    return S.Penance:Cast()
+		end
+        --actions+=/concentrated_flame
+	    if S.ConcentratedFlame:IsCastableP() then 
+	        return S.UnleashHeartOfAzeroth:Cast()
+	    end
+        --actions+=/ripple_in_space
+	    if S.RippleInSpace:IsCastableP() then 
+	        return S.UnleashHeartOfAzeroth:Cast()
+	    end
+        --actions+=/worldvein_resonance
+	    if S.WorldveinResonance:IsCastableP() then 
+	        return S.UnleashHeartOfAzeroth:Cast()
+	    end      
+    end
+	
+	-- CDs Priorities
+    local CDs = function()
+	    --actions+=/use_items
         -- blood_fury
         if S.BloodFury:IsCastableP() and RubimRH.CDsON() then
             return S.BloodFury:Cast()
@@ -290,60 +310,12 @@ local function APL()
         if S.AncestralCall:IsCastableP() and RubimRH.CDsON() then
             return S.AncestralCall:Cast()
         end
-        --actions+=/concentrated_flame
-	    if S.ConcentratedFlame:IsCastableP() then 
-	        return S.UnleashHeartOfAzeroth:Cast()
-	    end
-        --actions+=/ripple_in_space
-	    if S.RippleInSpace:IsCastableP() then 
-	        return S.UnleashHeartOfAzeroth:Cast()
-	    end
-        --actions+=/worldvein_resonance
-	    if S.WorldveinResonance:IsCastableP() then 
-	        return S.UnleashHeartOfAzeroth:Cast()
-	    end
-        --actions+=/flame_shock,target_if=(!ticking|dot.flame_shock.remains<=gcd)|refreshable
-        if S.FlameShock:IsCastableP() and (Target:BuffDownP(S.FlameShockDebuff) or Target:DebuffRemainsP(S.FlameShockDebuff) < Player:GCD()) and Target:DebuffRefreshableCP(S.FlameShockDebuff) then
-            return S.FlameShock:Cast()
-        end
-        --actions+=/lava_burst,if=dot.flame_shock.remains>cast_time&cooldown_react
-        if S.LavaBurst:IsCastableP() and (S.LavaBurst:CooldownUpP()) and Target:DebuffRemainsP(S.FlameShockDebuff) > S.LavaBurst:ExecuteTime() then
-            return S.LavaBurst:Cast()
-        end
-        --actions+=/earth_elemental
-	    if S.EarthElemental:IsReady() and RubimRH.CDsON() then
-	        return S.EarthElemental:Cast()
-        end
-        --actions+=/lightning_bolt,if=spell_targets.chain_lightning<2
-        if S.LightningBolt:IsCastableP() and active_enemies() < 2 then
-            return S.LightningBolt:Cast()
-        end
-        --actions+=/chain_lightning,if=active_enemies>1&spell_targets.chain_lightning>1
-        if S.ChainLightning:IsCastableP() and active_enemies() > 1 then
-            return S.ChainLightning:Cast()
-        end
-	    --actions+=/flame_shock,moving=1
-        if S.FlameShock:IsCastableP() and Player:IsMoving() then
-            return S.FlameShock:Cast()
-        end        
-    end
-	
-	-- CDs Priorities
-    local CDs = function()
-	    -- Astral Shift
-        if S.AstralShift:IsReady() and Player:HealthPercentage() <= RubimRH.db.profile[262].sk2 then
-            return S.AstralShift:Cast()
-        end
-		-- 1 Healing Tide Totem
-        if S.HealingTideTotem:IsReady() and (RubimRH.incdmg5secs() > AVG_DMG + AVG_HPS) and RubimRH.AoEHP(50) > 3 then
+		-- 1 PowerWord Barrier
+        if S.PowerWordBarrier:IsReady() and (RubimRH.incdmg5secs() > AVG_DMG + AVG_HPS) then
             if RubimRH.AoEHP(50) > 3 then
-                return S.HealingTideTotem:Cast()
+                return S.PowerWordBarrier:Cast()
             end
 		end		
-		--2 Spirit Link Totem
-        if S.SpiritLinkTotem:IsReady() and (RubimRH.incdmg5secs() > AVG_DMG + AVG_HPS) and RubimRH.AoEHP(50) > 4 then            
-            return S.SpiritLinkTotem:Cast()            
-        end
     end	
 	
 	-- Tank Priority Spells
@@ -355,80 +327,91 @@ local function APL()
 	-- Raid Healing rotation
     local Healing_Raid = function()	  
 	
-        --1 Riptide on Tank
-        if S.Riptide:IsReady() then
-            if LowestAlly("TANK", "HP") <= 98 then
+        --1a HolyWord Serenity (Emergency TANK Healing)
+        if S.HolyWordSerenity:IsReady() then
+            if LowestAlly("TANK", "HP") <= 45 then
                 ForceHealingTarget("TANK")
             end
 
-            if Target:GUID() == LowestAlly("TANK", "GUID") and Target:Exists() and Target:HealthPercentage() <= 98 then
-                return S.Riptide:Cast()
+            if Target:GUID() == LowestAlly("TANK", "GUID") and Target:Exists() and Target:HealthPercentage() <= 45 then
+                return S.HolyWordSerenity:Cast()
             end
         end
 		
-        --2 HealingStreamTotem
-        if S.HealingStreamTotem:IsReady() then
-            if LowestAlly("ALL", "HP") <= 95 then
+        --1b HolyWord Serenity (Emergency RAID Healing)
+        if S.HolyWordSerenity:IsReady() then
+            if LowestAlly("ALL", "HP") <= 35 then
                 ForceHealingTarget("ALL")
             end
 
-            if Target:GUID() == LowestAlly("ALL", "GUID") and Target:Exists() and Target:HealthPercentage() <= 95 then
-                return S.HealingStreamTotem:Cast()
+            if Target:GUID() == LowestAlly("ALL", "GUID") and Target:Exists() and Target:HealthPercentage() <= 35 then
+                return S.HolyWordSerenity:Cast()
+            end
+        end
+		
+        --2 HolyWord Sanctify
+        if S.HolyWordSanctify:IsReady() and RubimRH.AoEHP(91) >= 3 then
+            if LowestAlly("ALL", "HP") <= 91 then
+                ForceHealingTarget("ALL")
+            end
+
+            if Target:GUID() == LowestAlly("ALL", "GUID") and Target:Exists() and Target:HealthPercentage() <= 91 then
+                return S.HolyWordSanctify:Cast()
             end
         end		
 		
-		--3 HealingRain
-        if S.HealingRain:IsReady() and RubimRH.AoEON() and RubimRH.AoEHP(95) >= 3 and HealingRain() <= 3 then
+		--3 Prayer of Mending
+        if S.PrayerOfMending:IsReady() then
            if LowestAlly("ALL", "HP") <= 95 then
                 ForceHealingTarget("ALL")
             end
 
             if Target:GUID() == LowestAlly("ALL", "GUID") and Target:Exists() and Target:HealthPercentage() <= 95 then
-                return S.HealingRain:Cast()
+                return S.PrayerOfMending:Cast()
             end
         end	
 
-		--4 ChainHeal
-        if S.ChainHeal:IsReady() and RubimRH.AoEON() and RubimRH.AoEHP(80) >= 3 then
+		--4 FlashHeal (moderate damage) and less than 3 people lower than 80% HP
+        if S.FlashHeal:IsReady() and RubimRH.AoEHP(80) <= 3 then
+            if LowestAlly("ALL", "HP") <= 60 then
+                ForceHealingTarget("ALL")
+            end
+
+            if Target:GUID() == LowestAlly("ALL", "GUID") and Target:Exists() and Target:HealthPercentage() <= 60 then
+                return S.FlashHeal:Cast()
+            end
+        end
+		
+		--5 Prayer Of Healing if party low and HolyWord Sanctify on cooldown
+        if S.PrayerOfHealing:IsReady() and RubimRH.AoEON() and RubimRH.AoEHP(80) >= 3 and S.HolyWordSanctify:CooldownRemainsP() > 0.1 then
             if LowestAlly("ALL", "HP") <= 80 then
                 ForceHealingTarget("ALL")
             end
 
             if Target:GUID() == LowestAlly("ALL", "GUID") and Target:Exists() and Target:HealthPercentage() <= 80 then
-                return S.ChainHeal:Cast()
+                return S.PrayerOfHealing:Cast()
             end
         end
 		
-		--5 Healing Surge Emergency healing
-        if S.HealingSurge:IsReady() and Player:BuffStack(S.TidalWaveBuff) >= 1 then
-            if LowestAlly("ALL", "HP") <= 40 then
+		--5 Heal
+        if S.Heal:IsReady() and not Player:IsMoving() then
+            if LowestAlly("ALL", "HP") <= 95 then
                 ForceHealingTarget("ALL")
             end
 
-            if Target:GUID() == LowestAlly("ALL", "GUID") and Target:Exists() and Target:HealthPercentage() <= 40 then
-                return S.HealingSurge:Cast()
+            if Target:GUID() == LowestAlly("ALL", "GUID") and Target:Exists() and Target:HealthPercentage() <= 95 then
+                return S.Heal:Cast()
             end
         end
 
-		--6 Healing Wave medium priority
-        if S.HealingWave:IsReady() and Player:BuffStack(S.TidalWaveBuff) >= 1 then
-            if LowestAlly("ALL", "HP") <= 75 then
+		--6 Renew
+        if S.Renew:IsReady() then
+            if LowestAlly("ALL", "HP") <= 95 then
                 ForceHealingTarget("ALL")
             end
 
-            if Target:GUID() == LowestAlly("ALL", "GUID") and Target:Exists() and Target:HealthPercentage() <= 75 then
-                return S.HealingWave:Cast()
-            end
-        end	
-		
-		--6 Healing Wave low priority
-        if S.HealingWave:IsReady() and Player:BuffStack(S.TidalWaveBuff) >= 1 then
-            if LowestAlly("ALL", "HP") <= 90 then
-                ForceHealingTarget("ALL")
-            end
-
-            if Target:GUID() == LowestAlly("ALL", "GUID") and Target:Exists() and Target:HealthPercentage() <= 90 then
-                return S.HealingWave:Cast()
+            if Target:GUID() == LowestAlly("ALL", "GUID") and Target:Exists() and Target:HealthPercentage() <= 95 then
+                return S.Renew:Cast()
             end
         end	
     end
@@ -439,32 +422,24 @@ local function APL()
         if QueueSkill() ~= nil then
             return QueueSkill()
         end
-	    -- wind_shear
-        if S.WindShear:IsCastableP() and Target:IsInterruptible() and RubimRH.InterruptsON() then
-            return S.WindShear:Cast()
-        end
-	    -- purge (offensive dispell)
-        if S.Purge:IsCastableP() and Target:HasStealableBuff() then
-            return S.Purge:Cast()
-        end
-        --actions+=/spiritwalkers_grace,moving=1,if=movement.distance>6
-	    if S.SpiritWalkersGrace:IsReady() and Player:MovingFor() >= 5 and (RubimRH.incdmg5secs() > AVG_DMG + AVG_HPS) then
-            return S.SpiritWalkersGrace:Cast()
+		-- purge (offensive dispell)
+        if S.DispellMagic:IsCastableP() and Target:HasStealableBuff() then
+            return S.DispellMagic:Cast()
         end
         -- Mouseover Dispell handler
         local MouseoverUnit = UnitExists("mouseover") and UnitIsFriend("player", "mouseover") and Unit("mouseover") or nil
         if MouseoverUnit then
-            -- Nature Cure
-		    if S.PurifySpirit:IsReady() and MouseOver:HasDispelableDebuff("Magic", "Curse") then
-                return S.PurifySpirit:Cast()
+            -- Purify
+		    if S.Purify:IsReady() and MouseOver:HasDispelableDebuff("Magic", "Disease") then
+                return S.Purify:Cast()
             end
         end
 		-- Targetting Dispell 
 		local TargetUnit = UnitExists("target") and UnitIsFriend("player", "target") and Unit("target") or nil
         if TargetUnit then
-            -- Nature Cure
-		    if S.PurifySpirit:IsReady() and MouseOver:HasDispelableDebuff("Magic", "Curse") then
-                return S.PurifySpirit:Cast()
+            -- Purify
+		    if S.Purify:IsReady() and Target:HasDispelableDebuff("Magic", "Disease") then
+                return S.Purify:Cast()
             end
         end
 		
@@ -479,6 +454,7 @@ local function APL()
             return 0, 236353
         end
        
+	    -- DPS Rotation
 	    if RubimRH.TargetIsValid() then
             return DPS()
         end
@@ -514,10 +490,10 @@ local function APL()
 	--end
 end
 
-RubimRH.Rotation.SetAPL(264, APL)
+RubimRH.Rotation.SetAPL(257, APL)
 
 local function PASSIVE()
     return RubimRH.Shared()
 end
 
-RubimRH.Rotation.SetPASSIVE(264, PASSIVE)
+RubimRH.Rotation.SetPASSIVE(257, PASSIVE)
