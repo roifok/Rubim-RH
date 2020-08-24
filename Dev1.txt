@@ -1,6 +1,3 @@
-<<<<<<< HEAD
 
 
 My text from dev1
-=======
->>>>>>> parent of c996b93... 2
